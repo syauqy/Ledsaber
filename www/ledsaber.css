@@ -1,0 +1,43 @@
+body {
+            margin: 0px;
+            padding: 0px;
+            background: #0e121e;
+            font-family: helvetica;
+            color: aquamarine;
+    }
+        h1{
+            color: aquamarine;
+        }
+        Canvas{
+            border-style: aliceblue 5px solid;
+            border-radius: 20px;
+        }
+        ul{
+            margin-left: auto!important;
+            margin-right: auto!important;
+            padding: 10px;
+            background: rgba(0,0,0,0.5);
+        }
+        li{
+            padding: 0px 10px 0px 10px;
+        }
+        a{
+            color: ghostwhite;
+            text-decoration: none;
+        }
+        a:hover{
+            font-size: 15px;
+        }
+        .mpu{
+            font-size: 50px;
+            font-family: helvetica;
+        }
+        #forceStatus{
+            font-size: 25px;
+        }
+        #pwr{
+            height: 200px;
+            width: 200px;
+            text-align: center;
+            border-radius: 100px;
+        }

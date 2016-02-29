@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Photon LED Test</title>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=no">
+    <style>
+
+        @-ms-viewport { width: 100vw ; min-zoom: 100% ; zoom: 100% ; }  @viewport { width: 100vw ; min-zoom: 100% zoom: 100% ; }
+        @-ms-viewport { user-zoom: fixed ; min-zoom: 100% ; }           @viewport { user-zoom: fixed ; min-zoom: 100% ; }
+    </style>
+    <script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
+
+</head>
+
+<body>
+    <center>
+        <button class="togel">On/Off lightsaber</button>
+        <div>
+        <p id="rValue">1</p>
+        </div>
+      </center>
+</body>
+    <script>
+        var urlpost = "https://api.particle.io/v1/devices/270036000547343138333038/frdckp?access_token=88604c87ba986146768ed49f3b6c10e5f00e6391";
+        var urlGet = "https://api.particle.io/v1/devices/270036000547343138333038/rValue?access_token=88604c87ba986146768ed49f3b6c10e5f00e6391";
+        $(".togel").click(function(){
+            $.post(urlpost, "args=toggle");
+    window.location.href="color.html";
+        });
+        /*
+        $(document).ready(function(){
+            $.get(urlGet, function(data){
+                $("#rValue").text(data.result);
+                //alert (JSON.stringify(data.result));
+            })
+        })*/
+        
+        var jsonStream = new Event(urlGet);
+        jsonStream.onmessage = function(e){
+            var message = JSON.parse(e.data.result);
+            $("#rValue").text(message);
+        }
+    </script> 
+</html>

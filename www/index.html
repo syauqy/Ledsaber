@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+  <head>
+      <title>Choose Your Lightsaber Color</title>
+      <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+      <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=no">
+      <link rel="stylesheet" href="bootstrap/bootstrap-theme.css"/>
+      <link rel="stylesheet" href="bootstrap/bootstrap.css"/>
+      <link rel="stylesheet" href="ledsaber.css"/>
+      <script src="jquery-1.12.1.js"></script>
+      <script src="bootstrap/bootstrap.min.js"></script>
+      <script src="js/particle.js"></script>
+      <script src="js/ledsaber.js"></script>
+    <style>
+         @-ms-viewport { width: 100vw ; min-zoom: 100% ; zoom: 100% ; }  @viewport { width: 100vw ; min-zoom: 100% zoom: 100% ; }
+        @-ms-viewport { user-zoom: fixed ; min-zoom: 100% ; }           @viewport { user-zoom: fixed ; min-zoom: 100% ; }
+    </style>
+  </head>
+  <body>
+      <center>
+          <header>
+              
+          </header>
+              <!-- Nav tabs -->
+              <ul class="nav nav-tabs" role="tablist">
+                  <li role="presentation" class="active"><a href="#power" aria-controls="power" role="tab" data-toggle="tab">Power</a></li>
+                  <li id="colortab" role="presentation"><a href="#color" aria-controls="color" role="tab" data-toggle="tab">Color</a></li>
+                  <li role="presentation"><a href="#stats" aria-controls="stats" role="tab" data-toggle="tab">Stats</a></li>
+              </ul>
+              
+              <!-- Tab panes -->
+              <div class="tab-content">
+                  <div role="tabpanel" class="tab-pane fade in active" id="power">
+                      <h1>USE THE FORCE</h1>
+                      <button id="pwr" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off"></button>
+                  </div>
+                  <div role="tabpanel" class="tab-pane fade" id="color">
+                      <h1>PICK YOUR COLOR</h1>
+                      <canvas id="myCanvas" width="256" height="256"></canvas>
+                  </div>
+                  <div role="tabpanel" class="tab-pane fade" id="stats">
+                      <h1>STATISTICS</h1>
+                      <p class="mpu" id="mpu-x"></p>
+                      <p class="mpu" id="mpu-y"></p>
+                      <p class="mpu" id="mpu-z"></p>
+                      <p id="forceStatus"></p>
+                      <p id="darkforce"></p>
+                      <p id="lightforce"></p>
+                  </div>
+              </div>
+              
+        
+          
+          
+        <!--<div id="r">R: <input type="text"></input></div>
+        <div id="g">G: <input type="text"></input></div>
+        <div id="b">B: <input type="text"></input></div>-->
+        </center>
+
+    <script>
+        
+        var red = 0;
+        var green = 0;
+        var blue = 0;
+        var setTime;
+        var accel;
+        var canvas = document.getElementById('myCanvas').getContext('2d');
+        
+        var tempR = 0;
+        var tempG = 0;
+        var tempB = 0;
+        
+        var darkSide = 0;
+        var followAnakin = false;
+        var lightSide = 0;
+        
+        
+        
+	       // create an image object and get it’s source
+        var img = new Image();
+        img.src = 'color-picker.png';
+
+        $(document).ready(onLoad);
+        
+        function onLoad() {
+            initElements();
+
+            ledsaber.getMPU();
+            ledsaber.getRGB();
+        }
+
+        function initElements() {
+            ledsaber.onUpdateMPU = updateViewMPU;
+            ledsaber.onUpdateRGB = updateViewRGB;
+
+            //$('.setrgb__color-input').change(setRGBFromView);
+            
+            $(img).load(function(){
+	           canvas.drawImage(img,0,0);
+	           });
+            
+        
+            
+            $('#myCanvas').click(function(event){
+                // getting user coordinates
+                var x = event.pageX - this.offsetLeft;
+                var y = event.pageY - this.offsetTop;
+                // getting image data and RGB values
+                var img_data = canvas.getImageData(x, y, 1, 1).data;
+                red = img_data[0];
+                green = img_data[1];
+                blue = img_data[2];
+        
+                $('#r input').val(ledsaber.rgb.r);
+                $('#g input').val(ledsaber.rgb.g);
+                $('#b input').val(ledsaber.rgb.b);
+              
+                //if(setTime != null){
+                //    clearTimeout(setTime);
+                //}
+                
+                tempR = red;
+                tempB = blue;
+                tempG = green;
+                
+                ledsaber.setRGB(red,green,blue);
+              
+                //setTime = setTimeout(ledsaber.setRGB(red,green,blue),1);
+            });
+        }
+
+        function updateViewMPU() {
+            $('#mpu-x').text("X : "+ledsaber.mpu.x);
+            $('#mpu-y').text("Y : "+ledsaber.mpu.y);
+            $('#mpu-z').text("Z : "+ledsaber.mpu.z);
+            
+            $('#lightforce').text("Light Force: "+lightSide);
+            $('#darkforce').text("Dark Force : "+darkSide);
+           
+            
+            if(ledsaber.mpu.x < -70 && !followAnakin){
+                darkSide++;
+                $('#forceStatus').text("Powerful you have become, the dark side I sense in you.");
+            }
+            else if(followAnakin){
+                $('#colortab').addClass('disabled');
+                if(ledsaber.mpu.x > 0 && ledsaber.mpu.x < 1){
+                    lightSide++;
+                    $('#forceStatus').text("Patience you must have my young padawan");
+                }
+            }
+            else{
+               // 
+                 $('#forceStatus').text("Train yourself to let go of everything you fear to lose.");
+            }
+            
+            if(darkSide > 3){
+                ledsaber.setRGB(255,0,0);
+                followAnakin = true;
+                darkSide = 0;
+                $('#forceStatus').text("You follow the dark side!");
+                
+            }
+                       
+            
+            if(lightSide > 3){
+                    $('#forceStatus').text("You will bring balance to the Force");
+                    ledsaber.setRGB(255,255,255);
+                    lightSide = 0;
+                $('#colortab').removeClass('disabled');
+                followAnakin = false;
+            }
+                
+
+            ledsaber.getMPU();
+        }
+
+        function updateViewRGB() {
+            $('#r input').val(ledsaber.rgb.r);
+            $('#g input').val(ledsaber.rgb.g);
+            $('#b input').val(ledsaber.rgb.b);
+            
+                red = ledsaber.rgb.r;
+                green = ledsaber.rgb.g;
+                blue = ledsaber.rgb.b;
+
+            ledsaber.getRGB();
+        }
+
+        function setRGBFromView() {
+            //ledsaber.setHexRGB($('.setrgb__color-input').val());
+        }
+        
+        function click(){
+            if(red > 0 || green > 0 || blue > 0){
+                ledsaber.setRGB(0, 0, 0); //mati
+            }
+            else{
+                if(tempR != 0 || tempG != 0 || tempR != 0){
+                   ledsaber.setRGB(
+                    tempR,
+                    tempG,
+                    tempB); 
+                }
+                else{
+                    ledsaber.setRGB(255,255,255);
+                }
+            }
+        }
+        
+        $('#pwr').click(function(){
+            //alert(red+","+green+","+blue);
+            //alert(tempR+","+tempG+","+tempB);
+            if(red > 0 || green > 0 || blue > 0){
+                ledsaber.setRGB(0, 0, 0); //mati
+            }
+            else{
+                if(tempR != 0 || tempG != 0 || tempR != 0){
+                   ledsaber.setRGB(
+                    tempR,
+                    tempG,
+                    tempB); 
+                }
+                else{
+                    ledsaber.setRGB(255,255,255);
+                }
+            }
+                       
+        });
+        
+
+    </script>
+  </body>
+</html>
